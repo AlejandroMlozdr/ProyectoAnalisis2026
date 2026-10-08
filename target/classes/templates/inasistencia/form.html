@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Inasistencia</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-calendar-x"></i> <span th:text="${item.idInasistencia} != null ? 'Editar Inasistencia' : 'Nuevo Inasistencia'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 650px;">
+            <div class="card-body">
+                <form th:action="@{/inasistencia/guardar}" th:object="${item}" method="post">
+                    <input type="hidden" th:field="*{idInasistencia}" />
+                    <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="empleado">Empleado</label>
+                        <select name="empleado" id="empleado" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="o : ${empleadoOpciones}" th:value="${o.idEmpleado}" th:text="${o.persona.nombre + ' ' + o.persona.apellido}"
+                                    th:selected="${item.empleado != null and item.empleado.idEmpleado == o.idEmpleado}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="fechaInicial">Fecha inicial</label>
+                        <input type="datetime-local" th:field="*{fechaInicial}" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="fechaFinal">Fecha final</label>
+                        <input type="datetime-local" th:field="*{fechaFinal}" class="form-control" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="motivoInasistencia">Motivo</label>
+                        <input type="text" th:field="*{motivoInasistencia}" class="form-control" maxlength="300" />
+                    </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/inasistencia}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

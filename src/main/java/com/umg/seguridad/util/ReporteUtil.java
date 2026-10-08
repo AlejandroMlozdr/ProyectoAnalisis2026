@@ -19,6 +19,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Locale;
+import java.util.function.Supplier;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -46,6 +50,29 @@ public final class ReporteUtil {
     /** Arma una fila permitiendo valores null (List.of(...) los rechaza; Arrays.asList no). */
     public static List<String> fila(String... valores) {
         return Arrays.asList(valores);
+    }
+
+    /** Texto de cualquier valor para tablas: null -> "", fechas con formato dd/MM/yyyy. */
+    public static String str(Object valor) {
+        if (valor == null) return "";
+        if (valor instanceof LocalDateTime dt) return dt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        if (valor instanceof LocalDate d) return d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        return valor.toString();
+    }
+
+    /** Monto con separador de miles y 2 decimales (ej. 11,000.00). */
+    public static String money(BigDecimal valor) {
+        if (valor == null) return "";
+        return String.format(Locale.US, "%,.2f", valor);
+    }
+
+    /** Evalua una cadena de getters tolerando nulls intermedios (ej. e.getPuesto().getNombre()). */
+    public static String safe(Supplier<Object> supplier) {
+        try {
+            return str(supplier.get());
+        } catch (NullPointerException ex) {
+            return "";
+        }
     }
 
     public static byte[] generarPdf(String titulo, List<String> columnas, List<List<String>> filas) {

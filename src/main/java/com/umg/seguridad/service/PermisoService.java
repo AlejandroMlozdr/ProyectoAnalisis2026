@@ -227,6 +227,22 @@ public class PermisoService {
             case "/opcion" -> "bi-ui-checks";
             case "/usuario" -> "bi-person-lines-fill";
             case "/role-opcion" -> "bi-key";
+            case "/estado-civil" -> "bi-heart";
+            case "/status-empleado" -> "bi-person-gear";
+            case "/flujo-status-empleado" -> "bi-diagram-2";
+            case "/tipo-documento" -> "bi-card-heading";
+            case "/departamento" -> "bi-diagram-3";
+            case "/puesto" -> "bi-briefcase";
+            case "/persona" -> "bi-person-vcard";
+            case "/documento-persona" -> "bi-file-earmark-person";
+            case "/banco" -> "bi-bank";
+            case "/empleado" -> "bi-person-workspace";
+            case "/cuenta-bancaria-empleado" -> "bi-credit-card-2-front";
+            case "/inasistencia" -> "bi-calendar-x";
+            case "/calculo-planilla" -> "bi-calculator";
+            case "/reporte-planilla" -> "bi-file-earmark-bar-graph";
+            case "/boleta-pago" -> "bi-receipt";
+            case "/liquidacion" -> "bi-box-arrow-right";
             default -> "bi-dot";
         };
     }

@@ -296,6 +296,65 @@ en cada controlador (ej. `EmpresaController.exportarPdf()`), y quedan
 protegidos automáticamente por `PermisoInterceptor` igual que el resto de
 acciones.
 
+## Fase 2 — Planilla / RRHH (mapeo de la nueva base de datos)
+
+Se mapearon las 16 tablas de la fase 2 (entity + repository + service + controller + vistas),
+con el mismo esquema de seguridad: permisos por rol (Consultar/Alta/Baja/Cambio/Imprimir/Exportar),
+auditoría de creación/modificación e Imprimir (PDF) / Exportar (Excel) en cada listado.
+
+| Pantalla | Ruta (= `OPCION.Pagina`) | Tablas |
+|---|---|---|
+| Estados Civiles | `/estado-civil` | ESTADO_CIVIL |
+| Status Empleado | `/status-empleado` | STATUS_EMPLEADO |
+| Flujos Status Empleado | `/flujo-status-empleado` | FLUJO_STATUS_EMPLEADO (llave compuesta) |
+| Tipos de Documentos | `/tipo-documento` | TIPO_DOCUMENTO |
+| Departamentos | `/departamento` | DEPARTAMENTO |
+| Puestos | `/puesto` | PUESTO |
+| Personas | `/persona` | PERSONA |
+| Documentos de Personas | `/documento-persona` | DOCUMENTO_PERSONA (llave compuesta) |
+| Bancos | `/banco` | BANCO |
+| Empleados | `/empleado` | EMPLEADO |
+| Cuentas Bancarias Empleados | `/cuenta-bancaria-empleado` | CUENTA_BANCARIA_EMPLEADO |
+| Inasistencias de Empleados | `/inasistencia` | INASISTENCIA |
+| Calcular Planilla | `/calculo-planilla` | PERIODO_PLANILLA, PLANILLA_CABECERA, PLANILLA_DETALLE |
+| Reporte de Planilla | `/reporte-planilla` | PLANILLA_CABECERA, PLANILLA_DETALLE |
+| Boletas de Pago | `/boleta-pago` | PLANILLA_DETALLE, CUENTA_BANCARIA_EMPLEADO |
+| Liquidación de Empleado | `/liquidacion` | LIQUIDACION |
+
+`PERIODO_PLANILLA` tiene entity/repository/service pero no pantalla CRUD (el documento de
+requerimientos no la pide); alimenta el combo de períodos.
+
+### Para activarlo (importante)
+
+1. Ejecutar `sql/fase2_paginas_y_permisos.sql` en MySQL: cambia `OPCION.Pagina` de
+   `estado_civil.php` (versión PHP) a las rutas de esta tabla y da todos los permisos al rol
+   Administrador sobre las opciones nuevas.
+2. **Reiniciar la aplicación** (los permisos por rol se guardan en cache). Para otros roles,
+   asignar permisos desde "Asignar Opciones a un Rol".
+3. Spring valida el esquema al arrancar (`ddl-auto=validate`): las tablas de la fase 2 deben
+   existir en la misma base que la fase 1.
+
+### Reglas de negocio implementadas
+
+- **Flujos de status:** al editar un Empleado, cambiar su status solo se permite si existe esa
+  transición (actual → nuevo) en Flujos Status Empleado. En un flujo, status actual y nuevo deben ser distintos.
+- **Documentos de personas:** la combinación persona + tipo de documento es única.
+- **Inasistencias:** la fecha final no puede ser anterior a la inicial. `Fecha procesado` la
+  llena el sistema al calcular una planilla.
+- **Cuentas bancarias:** el indicador "activa" se guarda como `'1'`/`'0'` (columna `CHAR`).
+- **Calcular Planilla** (`PlanillaService.procesar`):
+  - entran los empleados con status **Activo** contratados hasta el fin del período;
+  - ingresos, IGSS e ISR se toman tal como están en el empleado;
+  - descuento por inasistencias = días ausentes dentro del período (máx. 30) × (sueldo base / 30);
+  - salario neto = sueldo base + bonificación + otros ingresos − IGSS − ISR − inasistencias;
+  - la cabecera guarda los totales; si el período ya estaba procesado hay que marcar "Recalcular"
+    (borra y regenera el detalle); marca las inasistencias consideradas con su `FechaProcesado`.
+- **Reporte y Boletas** leen la planilla ya procesada (no recalculan).
+- **Liquidación:** total ingresos = sueldo base + bonificación + otros; total descuentos =
+  IGSS + ISR + inasistencias; salario neto y total neto = ingresos − descuentos (se recalculan
+  al guardar). Al elegir un empleado se precargan sus datos. No tiene "Baja" (historial laboral).
+  La tabla `LIQUIDACION` no trae columnas de modificación, por eso solo guarda auditoría de creación.
+
 ## Estructura
 
 ```

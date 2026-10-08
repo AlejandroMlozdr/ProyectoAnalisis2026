@@ -4,6 +4,7 @@ import com.umg.seguridad.entity.*;
 import com.umg.seguridad.repository.*;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -25,12 +26,20 @@ public class WebConfig implements WebMvcConfigurer {
     private final GeneroRepository generoRepository;
     private final SucursalRepository sucursalRepository;
     private final RoleRepository roleRepository;
+    private final EstadoCivilRepository estadoCivilRepository;
+    private final StatusEmpleadoRepository statusEmpleadoRepository;
+    private final TipoDocumentoRepository tipoDocumentoRepository;
+    private final DepartamentoRepository departamentoRepository;
+    private final PersonaRepository personaRepository;
+    private final PuestoRepository puestoRepository;
+    private final BancoRepository bancoRepository;
+    private final EmpleadoRepository empleadoRepository;
     private final PermisoInterceptor permisoInterceptor;
 
     public WebConfig(EmpresaRepository empresaRepository, ModuloRepository moduloRepository,
                       MenuRepository menuRepository, StatusUsuarioRepository statusUsuarioRepository,
                       GeneroRepository generoRepository, SucursalRepository sucursalRepository,
-                      RoleRepository roleRepository, PermisoInterceptor permisoInterceptor) {
+                      RoleRepository roleRepository, EstadoCivilRepository estadoCivilRepository, StatusEmpleadoRepository statusEmpleadoRepository, TipoDocumentoRepository tipoDocumentoRepository, DepartamentoRepository departamentoRepository, PersonaRepository personaRepository, PuestoRepository puestoRepository, BancoRepository bancoRepository, EmpleadoRepository empleadoRepository, PermisoInterceptor permisoInterceptor) {
         this.empresaRepository = empresaRepository;
         this.moduloRepository = moduloRepository;
         this.menuRepository = menuRepository;
@@ -38,6 +47,14 @@ public class WebConfig implements WebMvcConfigurer {
         this.generoRepository = generoRepository;
         this.sucursalRepository = sucursalRepository;
         this.roleRepository = roleRepository;
+        this.estadoCivilRepository = estadoCivilRepository;
+        this.statusEmpleadoRepository = statusEmpleadoRepository;
+        this.tipoDocumentoRepository = tipoDocumentoRepository;
+        this.departamentoRepository = departamentoRepository;
+        this.personaRepository = personaRepository;
+        this.puestoRepository = puestoRepository;
+        this.bancoRepository = bancoRepository;
+        this.empleadoRepository = empleadoRepository;
         this.permisoInterceptor = permisoInterceptor;
     }
 
@@ -54,6 +71,16 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
+        // Fase 2 (planilla): combos de EstadoCivil, StatusEmpleado, Persona, Puesto, etc.
+        registrar(registry, EstadoCivil.class, estadoCivilRepository);
+        registrar(registry, StatusEmpleado.class, statusEmpleadoRepository);
+        registrar(registry, TipoDocumento.class, tipoDocumentoRepository);
+        registrar(registry, Departamento.class, departamentoRepository);
+        registrar(registry, Persona.class, personaRepository);
+        registrar(registry, Puesto.class, puestoRepository);
+        registrar(registry, Banco.class, bancoRepository);
+        registrar(registry, Empleado.class, empleadoRepository);
+
         registry.addConverter(new Converter<String, Empresa>() {
             @Override
             public Empresa convert(String id) {
@@ -108,6 +135,16 @@ public class WebConfig implements WebMvcConfigurer {
                 if (id == null || id.isBlank()) return null;
                 return roleRepository.findById(Integer.valueOf(id)).orElse(null);
             }
+        });
+    }
+
+    /** Converter generico String(id) -> entidad, para los combos de la fase 2. Vacio => null. */
+    private <T> void registrar(FormatterRegistry registry, Class<T> tipo, JpaRepository<T, Integer> repository) {
+        registry.addConverter(String.class, tipo, id -> {
+            if (id == null || id.isBlank()) {
+                return null;
+            }
+            return repository.findById(Integer.valueOf(id.trim())).orElse(null);
         });
     }
 }

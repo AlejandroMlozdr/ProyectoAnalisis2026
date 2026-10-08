@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Banco</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-bank"></i> <span th:text="${item.idBanco} != null ? 'Editar Banco' : 'Nuevo Banco'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 650px;">
+            <div class="card-body">
+                <form th:action="@{/banco/guardar}" th:object="${item}" method="post">
+                    <input type="hidden" th:field="*{idBanco}" />
+                    <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="nombre">Nombre</label>
+                        <input type="text" th:field="*{nombre}" class="form-control" maxlength="50" required />
+                    </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/banco}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

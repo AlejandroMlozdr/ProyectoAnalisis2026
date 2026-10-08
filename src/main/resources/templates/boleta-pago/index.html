@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Boletas de Pago</title></head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0"><i class="bi bi-receipt"></i> Boletas de Pago</h3>
+            <div class="d-flex gap-2" th:if="${detalle != null}">
+                <a th:href="@{/boleta-pago/exportar-pdf(periodo=${periodoSel},idEmpleado=${empleadoSel})}" class="btn btn-outline-danger"
+                   th:if="${@permisoService.puedeImprimir('/boleta-pago')}"><i class="bi bi-file-earmark-pdf"></i> Imprimir</a>
+                <a th:href="@{/boleta-pago/exportar-excel(periodo=${periodoSel},idEmpleado=${empleadoSel})}" class="btn btn-outline-success"
+                   th:if="${@permisoService.puedeExportar('/boleta-pago')}"><i class="bi bi-file-earmark-excel"></i> Exportar</a>
+            </div>
+        </div>
+
+        <form th:action="@{/boleta-pago}" method="get" class="row g-2 align-items-end mb-4" style="max-width: 850px;">
+            <div class="col-md-5">
+                <label class="form-label" for="periodo">Período</label>
+                <select name="periodo" id="periodo" class="form-select" required
+                        onchange="var e = document.getElementById('idEmpleado'); if (e) { e.value = ''; e.required = false; } this.form.submit();">
+                    <option value="">-- Seleccione un período procesado --</option>
+                    <option th:each="c : ${periodos}" th:value="${c.id.anio + '-' + c.id.mes}"
+                            th:text="${'Período ' + c.etiqueta}"
+                            th:selected="${periodoSel != null and periodoSel == c.id.anio + '-' + c.id.mes}"></option>
+                </select>
+            </div>
+            <div class="col-md-5" th:if="${detallesPeriodo != null}">
+                <label class="form-label" for="idEmpleado">Empleado</label>
+                <select name="idEmpleado" id="idEmpleado" class="form-select" required>
+                    <option value="">-- Seleccione --</option>
+                    <option th:each="d : ${detallesPeriodo}" th:value="${d.empleado.idEmpleado}"
+                            th:text="${d.empleado.persona.nombre + ' ' + d.empleado.persona.apellido}"
+                            th:selected="${empleadoSel != null and empleadoSel == d.empleado.idEmpleado}"></option>
+                </select>
+            </div>
+            <div class="col-md-2" th:if="${detallesPeriodo != null}">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Generar</button>
+            </div>
+        </form>
+
+        <div class="card shadow-sm" style="max-width: 700px;" th:if="${detalle != null}">
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <h5 class="mb-0">BOLETA DE PAGO</h5>
+                    <div class="text-muted" th:text="${'Período ' + detalle.mes + '/' + detalle.anio}"></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Empleado</div>
+                        <div class="fw-semibold" th:text="${detalle.empleado.persona.nombre + ' ' + detalle.empleado.persona.apellido}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Puesto</div>
+                        <div th:text="${detalle.puesto.nombre + ' - ' + detalle.puesto.departamento.nombre}"></div>
+                    </div>
+                    <div class="col-sm-6 mt-2">
+                        <div class="text-muted small">Fecha de contratación</div>
+                        <div th:text="${#temporals.format(detalle.fechaContratacion,'dd/MM/yyyy')}"></div>
+                    </div>
+                    <div class="col-sm-6 mt-2">
+                        <div class="text-muted small">Cuenta de depósito</div>
+                        <div th:if="${cuenta != null}" th:text="${cuenta.banco.nombre + ' - ' + cuenta.numeroDeCuenta}"></div>
+                        <div th:if="${cuenta == null}" class="text-muted">No registrada</div>
+                    </div>
+                </div>
+
+                <table class="table table-sm mb-0">
+                    <tbody>
+                    <tr><td>Sueldo base</td><td class="text-end" th:text="${#numbers.formatDecimal(detalle.ingresoSueldoBase,1,'COMMA',2,'POINT')}"></td></tr>
+                    <tr><td>Bonificación Decreto</td><td class="text-end" th:text="${#numbers.formatDecimal(detalle.ingresoBonificacionDecreto,1,'COMMA',2,'POINT')}"></td></tr>
+                    <tr><td>Otros ingresos</td><td class="text-end" th:text="${#numbers.formatDecimal(detalle.ingresoOtrosIngresos,1,'COMMA',2,'POINT')}"></td></tr>
+                    <tr class="table-light fw-semibold"><td>Total ingresos</td><td class="text-end" th:text="${#numbers.formatDecimal(detalle.totalIngresos,1,'COMMA',2,'POINT')}"></td></tr>
+                    <tr><td>Descuento IGSS</td><td class="text-end" th:text="${#numbers.formatDecimal(detalle.descuentoIgss,1,'COMMA',2,'POINT')}"></td></tr>
+                    <tr><td>Descuento ISR</td><td class="text-end" th:text="${#numbers.formatDecimal(detalle.descuentoIsr,1,'COMMA',2,'POINT')}"></td></tr>
+                    <tr><td>Descuento por inasistencias</td><td class="text-end" th:text="${#numbers.formatDecimal(detalle.descuentoInasistencias,1,'COMMA',2,'POINT')}"></td></tr>
+                    <tr class="table-light fw-semibold"><td>Total descuentos</td><td class="text-end" th:text="${#numbers.formatDecimal(detalle.totalDescuentos,1,'COMMA',2,'POINT')}"></td></tr>
+                    <tr class="table-success fw-bold"><td>SALARIO NETO</td><td class="text-end" th:text="${'Q ' + #numbers.formatDecimal(detalle.salarioNeto,1,'COMMA',2,'POINT')}"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

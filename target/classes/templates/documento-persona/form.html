@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Documento de Persona</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-file-earmark-person"></i> <span th:text="${esNuevo} ? 'Nuevo Documento de Persona' : 'Editar Documento de Persona'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 800px;">
+            <div class="card-body">
+                <form th:action="@{/documento-persona/guardar}" th:object="${item}" method="post">
+                    <input type="hidden" name="esNuevo" th:value="${esNuevo}" />
+                    <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="persona">Persona</label>
+                        <th:block th:if="${esNuevo}">
+                            <select name="persona" id="persona" class="form-select" required>
+                                <option value="">-- Seleccione --</option>
+                                <option th:each="o : ${personaOpciones}" th:value="${o.idPersona}" th:text="${o.nombre + ' ' + o.apellido}"
+                                        th:selected="${item.persona != null and item.persona.idPersona == o.idPersona}"></option>
+                            </select>
+                        </th:block>
+                        <th:block th:unless="${esNuevo}">
+                            <input type="text" class="form-control" th:value="${item.persona?.nombre + ' ' + item.persona?.apellido}" readonly />
+                            <input type="hidden" name="persona" th:value="${item.persona.idPersona}" />
+                        </th:block>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="tipoDocumento">Tipo de documento</label>
+                        <th:block th:if="${esNuevo}">
+                            <select name="tipoDocumento" id="tipoDocumento" class="form-select" required>
+                                <option value="">-- Seleccione --</option>
+                                <option th:each="o : ${tipoDocumentoOpciones}" th:value="${o.idTipoDocumento}" th:text="${o.nombre}"
+                                        th:selected="${item.tipoDocumento != null and item.tipoDocumento.idTipoDocumento == o.idTipoDocumento}"></option>
+                            </select>
+                        </th:block>
+                        <th:block th:unless="${esNuevo}">
+                            <input type="text" class="form-control" th:value="${item.tipoDocumento?.nombre}" readonly />
+                            <input type="hidden" name="tipoDocumento" th:value="${item.tipoDocumento.idTipoDocumento}" />
+                        </th:block>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="noDocumento">Número de documento</label>
+                        <input type="text" th:field="*{noDocumento}" class="form-control" maxlength="50" required />
+                    </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/documento-persona}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

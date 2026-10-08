@@ -29,6 +29,7 @@ import java.util.Set;
  *   .../eliminar/** (POST) -> Baja
  *   .../exportar-pdf       -> Imprimir
  *   .../exportar-excel     -> Exportar
+ *   .../procesar (POST)    -> Alta   (ejecutar un proceso, ej. Calcular Planilla)
  *   .../caducar-password/** (POST) -> Cambio (forzar vencimiento de password es una modificacion)
  *   cualquier otra cosa (el listado, o un endpoint auxiliar como el combo
  *   AJAX de sucursales-por-empresa) -> Consultar
@@ -99,6 +100,9 @@ public class PermisoInterceptor implements HandlerInterceptor {
         }
         if (resto.startsWith("eliminar")) {
             return permisoService.puedeBaja(pagina);
+        }
+        if (resto.startsWith("procesar")) {
+            return permisoService.puedeAlta(pagina);
         }
         if (resto.startsWith("caducar-password")) {
             return permisoService.puedeCambio(pagina);

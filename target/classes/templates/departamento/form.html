@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Departamento</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-diagram-3"></i> <span th:text="${item.idDepartamento} != null ? 'Editar Departamento' : 'Nuevo Departamento'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 650px;">
+            <div class="card-body">
+                <form th:action="@{/departamento/guardar}" th:object="${item}" method="post">
+                    <input type="hidden" th:field="*{idDepartamento}" />
+                    <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="nombre">Nombre</label>
+                        <input type="text" th:field="*{nombre}" class="form-control" maxlength="50" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="empresa">Empresa</label>
+                        <select name="empresa" id="empresa" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="o : ${empresaOpciones}" th:value="${o.idEmpresa}" th:text="${o.nombre}"
+                                    th:selected="${item.empresa != null and item.empresa.idEmpresa == o.idEmpresa}"></option>
+                        </select>
+                    </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/departamento}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
