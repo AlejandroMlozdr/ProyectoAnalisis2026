@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Asignar Opciones a un Rol</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-key"></i> Asignar Opciones a un Rol</h3>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <form th:action="@{/role-opcion}" method="get" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Rol</label>
+                        <select name="idRole" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="r : ${roles}" th:value="${r.idRole}" th:text="${r.nombre}"
+                                    th:selected="${r.idRole == idRoleSeleccionado}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Módulo</label>
+                        <select name="idModulo" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="m : ${modulos}" th:value="${m.idModulo}" th:text="${m.nombre}"
+                                    th:selected="${m.idModulo == idModuloSeleccionado}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="bi bi-search"></i> Cargar Opciones
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm" th:if="${form != null}">
+            <div class="card-body">
+                <form th:action="@{/role-opcion/guardar}" th:object="${form}" method="post">
+                    <input type="hidden" th:field="*{idRole}" />
+                    <input type="hidden" th:field="*{idModulo}" />
+
+                    <table class="table align-middle mb-3">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Opción</th>
+                            <th class="text-center">Consultar</th>
+                            <th class="text-center">Alta</th>
+                            <th class="text-center">Baja</th>
+                            <th class="text-center">Cambio</th>
+                            <th class="text-center">Imprimir</th>
+                            <th class="text-center">Exportar</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="fila, stat : *{permisos}" class="fila-permiso">
+                            <td>
+                                <input type="hidden" th:field="*{permisos[__${stat.index}__].idOpcion}" />
+                                <span th:text="${fila.nombreOpcion}"></span>
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input chk-consultar"
+                                       th:field="*{permisos[__${stat.index}__].consultar}" />
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input chk-accion" th:field="*{permisos[__${stat.index}__].alta}" />
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input chk-accion" th:field="*{permisos[__${stat.index}__].baja}" />
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input chk-accion" th:field="*{permisos[__${stat.index}__].cambio}" />
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input chk-accion" th:field="*{permisos[__${stat.index}__].imprimir}" />
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input chk-accion" th:field="*{permisos[__${stat.index}__].exportar}" />
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(form.permisos)}">
+                            <td colspan="7" class="text-center text-muted py-4">Este módulo no tiene opciones registradas.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <p class="text-muted small">
+                        <i class="bi bi-info-circle"></i>
+                        "Consultar" controla si el rol ve esta opción en su menú. Si lo desmarcás, la opción
+                        deja de aparecer para ese rol (aunque tenga otros permisos marcados).
+                    </p>
+
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar Permisos</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="alert alert-info" th:if="${form == null}">
+            Selecciona un Rol y un Módulo, y luego "Cargar Opciones" para ver y editar los permisos.
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            // Ayuda visual (no reemplaza la regla real, que vive en RoleOpcionService):
+            // si tildan cualquier accion, se asegura que "Consultar" tambien quede tildado
+            // (no tiene sentido dar Alta/Baja/etc sobre algo que el rol ni siquiera puede ver).
+            document.querySelectorAll('.fila-permiso').forEach(function (fila) {
+                var chkConsultar = fila.querySelector('.chk-consultar');
+                var chksAccion = fila.querySelectorAll('.chk-accion');
+
+                chksAccion.forEach(function (chk) {
+                    chk.addEventListener('change', function () {
+                        if (chk.checked) {
+                            chkConsultar.checked = true;
+                        }
+                    });
+                });
+            });
+        </script>
+    </th:block>
+</body>
+</html>

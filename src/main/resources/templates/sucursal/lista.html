@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><title>Sucursales</title></head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0"><i class="bi bi-signpost-split"></i> Sucursales</h3>
+            <div class="d-flex gap-2">
+                <a th:href="@{/sucursal/exportar-pdf}" class="btn btn-outline-danger" th:if="${@permisoService.puedeImprimir('/sucursal')}"><i class="bi bi-file-earmark-pdf"></i> Imprimir</a>
+                <a th:href="@{/sucursal/exportar-excel}" class="btn btn-outline-success" th:if="${@permisoService.puedeExportar('/sucursal')}"><i class="bi bi-file-earmark-excel"></i> Exportar</a>
+                <a th:href="@{/sucursal/nuevo}" class="btn btn-primary" th:if="${@permisoService.puedeAlta('/sucursal')}">
+                    <i class="bi bi-plus-lg"></i> Nueva Sucursal
+                </a>
+            </div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light"><tr><th>Nombre</th><th>Empresa</th><th>Dirección</th><th class="text-end">Acciones</th></tr></thead>
+                    <tbody>
+                    <tr th:each="s : ${sucursales}">
+                        <td th:text="${s.nombre}"></td>
+                        <td th:text="${s.empresa.nombre}"></td>
+                        <td th:text="${s.direccion}"></td>
+                        <td class="text-end">
+                            <a th:href="@{/sucursal/editar/{id}(id=${s.idSucursal})}" class="btn btn-sm btn-outline-secondary" th:if="${@permisoService.puedeCambio('/sucursal')}"><i class="bi bi-pencil"></i></a>
+                            <form th:action="@{/sucursal/eliminar/{id}(id=${s.idSucursal})}" method="post" class="d-inline" th:if="${@permisoService.puedeBaja('/sucursal')}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?');"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(sucursales)}"><td colspan="4" class="text-center text-muted py-4">No hay sucursales registradas.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

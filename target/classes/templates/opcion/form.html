@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Opción</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-ui-checks"></i> <span th:text="${opcion.idOpcion} != null ? 'Editar Opción' : 'Nueva Opción'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 600px;">
+            <div class="card-body">
+                <form th:action="@{/opcion/guardar}" th:object="${opcion}" method="post">
+                    <input type="hidden" th:field="*{idOpcion}" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Menú</label>
+                        <select th:field="*{menu}" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="m : ${menus}" th:value="${m.idMenu}"
+                                    th:text="${m.modulo.nombre} + ' &gt; ' + ${m.nombre}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" th:field="*{nombre}" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Página / Ruta asociada</label>
+                        <input type="text" th:field="*{pagina}" class="form-control" placeholder="ej. /empresa" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Orden</label>
+                        <input type="number" th:field="*{ordenMenu}" class="form-control" required />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/opcion}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
