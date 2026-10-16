@@ -10,4 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DepartamentoRepository extends JpaRepository<Departamento, Integer> {
+
+    // Usado para evitar nombres repetidos al guardar.
+    List<Departamento> findByNombreIgnoreCaseAndEmpresa_IdEmpresa(String nombre, Integer idEmpresa);
 }

@@ -4,6 +4,8 @@ import com.umg.seguridad.entity.*;
 import com.umg.seguridad.repository.*;
 import com.umg.seguridad.service.TipoDocumentoService;
 import com.umg.seguridad.util.ReporteUtil;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,8 +63,12 @@ public class TipoDocumentoController {
 
     @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-        service.eliminar(id);
-        redirectAttributes.addFlashAttribute("exito", "Registro eliminado correctamente.");
+        try {
+            service.eliminar(id);
+            redirectAttributes.addFlashAttribute("exito", "Registro eliminado correctamente.");
+        } catch (DataIntegrityViolationException ex) {
+            redirectAttributes.addFlashAttribute("error", "No se puede eliminar el tipo de documento porque está asociado a documentos de personas.");
+        }
         return "redirect:/tipo-documento";
     }
 

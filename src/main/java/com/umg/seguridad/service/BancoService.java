@@ -2,6 +2,7 @@ package com.umg.seguridad.service;
 
 import com.umg.seguridad.entity.*;
 import com.umg.seguridad.repository.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ public class BancoService {
     }
 
     public List<Banco> listar() {
-        return repository.findAll();
+        return repository.findAll(Sort.by("nombre"));
     }
 
     public Banco obtenerPorId(Integer id) {
@@ -63,6 +64,11 @@ public class BancoService {
             if (e.getNombre() != null && e.getNombre().length() > 50) {
                 throw new IllegalArgumentException("El campo Nombre no puede exceder 50 caracteres.");
             }
+        }
+        boolean duplicado = repository.findByNombreIgnoreCase(e.getNombre()).stream()
+                .anyMatch(x -> e.getIdBanco() == null || !x.getIdBanco().equals(e.getIdBanco()));
+        if (duplicado) {
+            throw new IllegalArgumentException("Ya existe un banco con el nombre \"" + e.getNombre() + "\".");
         }
     }
 }
