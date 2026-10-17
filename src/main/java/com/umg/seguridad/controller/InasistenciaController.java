@@ -12,9 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/inasistencia")
@@ -36,16 +34,24 @@ public class InasistenciaController {
 
     @GetMapping("/nuevo")
     public String nuevo(Model model) {
-        model.addAttribute("item", new Inasistencia());
-        cargarCombos(model);
+        Inasistencia item = new Inasistencia();
+        model.addAttribute("item", item);
+        cargarCombos(model, item);
         return "inasistencia/form";
     }
 
     @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Integer id, Model model) {
-        model.addAttribute("item", service.obtenerPorId(id));
-        cargarCombos(model);
-        return "inasistencia/form";
+    public String editar(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            Inasistencia item = service.obtenerPorId(id);
+            service.validarEditable(item);
+            model.addAttribute("item", item);
+            cargarCombos(model, item);
+            return "inasistencia/form";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/inasistencia";
+        }
     }
 
     @PostMapping("/guardar")
@@ -56,20 +62,34 @@ public class InasistenciaController {
             return "redirect:/inasistencia";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            cargarCombos(model);
+            cargarCombos(model, item);
             return "inasistencia/form";
         }
     }
 
     @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-        service.eliminar(id);
-        redirectAttributes.addFlashAttribute("exito", "Registro eliminado correctamente.");
+        try {
+            service.eliminar(id);
+            redirectAttributes.addFlashAttribute("exito", "Registro eliminado correctamente.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/inasistencia";
     }
 
-    private void cargarCombos(Model model) {
-        model.addAttribute("empleadoOpciones", empleadoRepository.findAll());
+    /**
+     * Solo empleados "Activo" en el combo. En una edicion se incluye ademas el
+     * empleado actual del registro aunque ya no este activo, para que el combo
+     * lo muestre seleccionado.
+     */
+    private void cargarCombos(Model model, Inasistencia item) {
+        Integer idActual = item.getEmpleado() != null ? item.getEmpleado().getIdEmpleado() : null;
+        List<Empleado> empleados = empleadoRepository.findAll().stream()
+                .filter(emp -> InasistenciaService.STATUS_ACTIVO.equalsIgnoreCase(emp.getStatusEmpleado().getNombre())
+                        || emp.getIdEmpleado().equals(idActual))
+                .toList();
+        model.addAttribute("empleadoOpciones", empleados);
     }
 
     // ----- Imprimir (PDF) y Exportar (Excel) -----
@@ -83,7 +103,7 @@ public class InasistenciaController {
                         ReporteUtil.str(e.getFechaInicial()),
                         ReporteUtil.str(e.getFechaFinal()),
                         e.getMotivoInasistencia(),
-                        ReporteUtil.str(e.getFechaProcesado())))
+                        e.getFechaProcesado() == null ? "Pendiente" : ReporteUtil.str(e.getFechaProcesado())))
                 .toList();
     }
 
