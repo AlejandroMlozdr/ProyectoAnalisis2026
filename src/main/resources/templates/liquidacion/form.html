@@ -4,19 +4,26 @@
 <head><title>Formulario Liquidación</title></head>
 <body>
     <div layout:fragment="content">
-        <h3 class="mb-3"><i class="bi bi-box-arrow-right"></i> <span th:text="${item.idLiquidacion} != null ? 'Editar Liquidación' : 'Nuevo Liquidación'"></span></h3>
-        <div class="card shadow-sm" style="max-width: 900px;">
+        <h3 class="mb-3"><i class="bi bi-box-arrow-right"></i> <span th:text="${item.idLiquidacion} != null ? 'Editar Liquidación' : 'Nueva Liquidación'"></span></h3>
+        <div class="row g-3">
+        <div class="col-lg-8">
+        <div class="card shadow-sm">
             <div class="card-body">
-                <form th:action="@{/liquidacion/guardar}" th:object="${item}" method="post">
+                <form th:action="@{/liquidacion/guardar}" th:object="${item}" method="post" id="formLiquidacion">
                     <input type="hidden" th:field="*{idLiquidacion}" />
+                    <!-- En una edicion el empleado no se puede cambiar: el select va deshabilitado y el valor viaja oculto -->
+                    <input type="hidden" name="empleado" th:if="${item.idLiquidacion != null}" th:value="${item.empleado?.idEmpleado}" />
                     <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label" for="empleado">Empleado</label>
-                        <select name="empleado" id="empleado" class="form-select" required>
+                        <select name="empleado" id="empleado" class="form-select" required
+                                th:disabled="${item.idLiquidacion != null}">
                             <option value="">-- Seleccione --</option>
-                            <option th:each="o : ${empleadoOpciones}" th:value="${o.idEmpleado}" th:text="${o.persona.nombre + ' ' + o.persona.apellido}"
+                            <option th:each="o : ${empleadoOpciones}" th:value="${o.idEmpleado}"
+                                    th:text="${o.persona.nombre + ' ' + o.persona.apellido + ' (' + o.statusEmpleado.nombre + ')'}"
                                     th:selected="${item.empleado != null and item.empleado.idEmpleado == o.idEmpleado}"></option>
                         </select>
+                        <div class="form-text" th:if="${item.idLiquidacion == null}">Solo empleados que no están de Baja ni Despedidos.</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="puesto">Puesto</label>
@@ -40,31 +47,37 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="motivoEgreso">Motivo de egreso</label>
-                        <input type="text" th:field="*{motivoEgreso}" class="form-control" maxlength="50" required />
+                        <select th:field="*{motivoEgreso}" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="m : ${motivoOpciones}" th:value="${m}" th:text="${m}"></option>
+                        </select>
+                        <div class="form-text" id="ayudaStatus"></div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-12"><hr class="my-1"><span class="text-muted small">Último salario</span></div>
+                    <div class="col-md-4">
                         <label class="form-label" for="ingresoSueldoBase">Sueldo base</label>
-                        <input type="number" step="0.01" min="0" th:field="*{ingresoSueldoBase}" class="form-control" required />
+                        <input type="number" step="0.01" min="0" th:field="*{ingresoSueldoBase}" class="form-control monto" required />
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label" for="ingresoBonificacionDecreto">Bonificación Decreto</label>
-                        <input type="number" step="0.01" min="0" th:field="*{ingresoBonificacionDecreto}" class="form-control" required />
+                        <input type="number" step="0.01" min="0" th:field="*{ingresoBonificacionDecreto}" class="form-control monto" required />
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label" for="ingresoOtrosIngresos">Otros ingresos</label>
-                        <input type="number" step="0.01" min="0" th:field="*{ingresoOtrosIngresos}" class="form-control" required />
+                        <input type="number" step="0.01" min="0" th:field="*{ingresoOtrosIngresos}" class="form-control monto" required />
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label" for="descuentoIgss">Descuento IGSS</label>
-                        <input type="number" step="0.01" min="0" th:field="*{descuentoIgss}" class="form-control" required />
+                        <input type="number" step="0.01" min="0" th:field="*{descuentoIgss}" class="form-control monto" required />
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label" for="descuentoIsr">Descuento ISR</label>
-                        <input type="number" step="0.01" min="0" th:field="*{descuentoIsr}" class="form-control" required />
+                        <input type="number" step="0.01" min="0" th:field="*{descuentoIsr}" class="form-control monto" required />
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label" for="descuentoInasistencias">Descuento por inasistencias</label>
-                        <input type="number" step="0.01" min="0" th:field="*{descuentoInasistencias}" class="form-control" required />
+                        <input type="number" step="0.01" min="0" th:field="*{descuentoInasistencias}" class="form-control monto" required />
+                        <div class="form-text" id="ayudaInasistencias"></div>
                     </div>
                     </div>
                     <div class="d-flex gap-2 mt-4">
@@ -74,18 +87,46 @@
                 </form>
             </div>
         </div>
+        </div>
+
+        <!-- Vista previa del calculo (el calculo definitivo lo hace el servidor al guardar) -->
+        <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light"><i class="bi bi-calculator"></i> Vista previa del cálculo</div>
+            <div class="card-body small">
+                <div class="mb-2 text-muted">Tiempo de servicio: <span id="pv-tiempo">—</span></div>
+                <table class="table table-sm mb-0">
+                    <tr><td>Indemnización</td><td class="text-end" id="pv-indemnizacion">0.00</td></tr>
+                    <tr><td>Aguinaldo proporcional</td><td class="text-end" id="pv-aguinaldo">0.00</td></tr>
+                    <tr><td>Bono 14 proporcional</td><td class="text-end" id="pv-bono14">0.00</td></tr>
+                    <tr><td>Vacaciones proporcionales</td><td class="text-end" id="pv-vacaciones">0.00</td></tr>
+                    <tr class="fw-semibold"><td>Total prestaciones</td><td class="text-end" id="pv-prestaciones">0.00</td></tr>
+                    <tr><td>Total ingresos</td><td class="text-end" id="pv-ingresos">0.00</td></tr>
+                    <tr><td>Total descuentos</td><td class="text-end" id="pv-descuentos">0.00</td></tr>
+                    <tr><td>Salario neto</td><td class="text-end" id="pv-salario">0.00</td></tr>
+                    <tr class="table-primary fw-bold"><td>Total neto liquidación</td><td class="text-end" id="pv-neto">0.00</td></tr>
+                </table>
+                <div class="form-text mt-2">La indemnización solo aplica en despido injustificado. Prestaciones calculadas sobre el sueldo base.</div>
+            </div>
+        </div>
+        </div>
+        </div>
     </div>
     <th:block layout:fragment="scripts">
-        <script>
-            document.getElementById('empleado').addEventListener('change', async function () {
-                if (!this.value) return;
+        <script th:inline="javascript">
+          (function () {
+            const BASE = /*[[@{/liquidacion}]]*/ '/liquidacion';
+            const $ = function (id) { return document.getElementById(id); };
+            const num = function (id) { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; };
+            const fmt = function (v) { return Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+            const set = function (id, v) { const el = $(id); if (el && v !== undefined && v !== null) el.value = v; };
+
+            async function cargarEmpleado() {
+                const id = $('empleado').value;
+                if (!id || $('empleado').disabled) return;
                 try {
-                    const resp = await fetch('/liquidacion/datos-empleado/' + this.value);
-                    const d = await resp.json();
-                    const set = function (id, v) {
-                        const el = document.getElementById(id);
-                        if (el && v !== undefined && v !== null) el.value = v;
-                    };
+                    const params = $('fechaEgreso').value ? ('?fechaEgreso=' + $('fechaEgreso').value) : '';
+                    const d = await (await fetch(BASE + '/datos-empleado/' + id + params)).json();
                     set('fechaContratacion', d.fechaContratacion);
                     set('puesto', d.idPuesto);
                     set('ingresoSueldoBase', d.sueldoBase);
@@ -94,10 +135,54 @@
                     set('descuentoIgss', d.igss);
                     set('descuentoIsr', d.isr);
                     set('descuentoInasistencias', d.inasistencias);
+                    $('ayudaInasistencias').textContent = d.diasInasistencia > 0
+                        ? d.diasInasistencia + ' día(s) de inasistencia pendientes de procesar.'
+                        : 'Sin inasistencias pendientes.';
                 } catch (e) {
                     console.error('No se pudieron cargar los datos del empleado', e);
                 }
+                recalcular();
+            }
+
+            async function recalcular() {
+                const q = new URLSearchParams({
+                    fechaContratacion: $('fechaContratacion').value,
+                    fechaEgreso: $('fechaEgreso').value,
+                    sueldo: $('ingresoSueldoBase').value,
+                    motivo: $('motivoEgreso').value
+                });
+                let p = { totalPrestaciones: 0 };
+                try {
+                    p = await (await fetch(BASE + '/calcular?' + q.toString())).json();
+                } catch (e) {
+                    console.error('No se pudo calcular la vista previa', e);
+                }
+                const salario = num('ingresoSueldoBase') + num('ingresoBonificacionDecreto') + num('ingresoOtrosIngresos');
+                const descuentos = num('descuentoIgss') + num('descuentoIsr') + num('descuentoInasistencias');
+                const prestaciones = Number(p.totalPrestaciones || 0);
+                $('pv-tiempo').textContent = p.tiempoServicio || '—';
+                $('pv-indemnizacion').textContent = fmt(p.indemnizacion);
+                $('pv-aguinaldo').textContent = fmt(p.aguinaldo);
+                $('pv-bono14').textContent = fmt(p.bono14);
+                $('pv-vacaciones').textContent = fmt(p.vacaciones);
+                $('pv-prestaciones').textContent = fmt(prestaciones);
+                $('pv-ingresos').textContent = fmt(salario + prestaciones);
+                $('pv-descuentos').textContent = fmt(descuentos);
+                $('pv-salario').textContent = fmt(salario - descuentos);
+                $('pv-neto').textContent = fmt(salario + prestaciones - descuentos);
+                $('ayudaStatus').textContent = p.statusDestino
+                    ? 'Al guardar, el empleado quedará con status "' + p.statusDestino + '".' : '';
+            }
+
+            $('empleado').addEventListener('change', cargarEmpleado);
+            $('fechaEgreso').addEventListener('change', function () {
+                // las inasistencias pendientes dependen de la fecha de egreso
+                if (!$('empleado').disabled && $('empleado').value) { cargarEmpleado(); } else { recalcular(); }
             });
+            ['fechaContratacion', 'motivoEgreso'].forEach(function (id) { $(id).addEventListener('change', recalcular); });
+            document.querySelectorAll('.monto').forEach(function (el) { el.addEventListener('input', recalcular); });
+            recalcular();
+          })();
         </script>
     </th:block>
 </body>

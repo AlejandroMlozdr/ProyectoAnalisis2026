@@ -4,7 +4,7 @@
 <head><title>Formulario Inasistencia</title></head>
 <body>
     <div layout:fragment="content">
-        <h3 class="mb-3"><i class="bi bi-calendar-x"></i> <span th:text="${item.idInasistencia} != null ? 'Editar Inasistencia' : 'Nuevo Inasistencia'"></span></h3>
+        <h3 class="mb-3"><i class="bi bi-calendar-x"></i> <span th:text="${item.idInasistencia} != null ? 'Editar Inasistencia' : 'Nueva Inasistencia'"></span></h3>
         <div class="card shadow-sm" style="max-width: 650px;">
             <div class="card-body">
                 <form th:action="@{/inasistencia/guardar}" th:object="${item}" method="post">
@@ -30,6 +30,12 @@
                         <label class="form-label" for="motivoInasistencia">Motivo</label>
                         <input type="text" th:field="*{motivoInasistencia}" class="form-control" maxlength="300" />
                     </div>
+                    </div>
+                    <div class="form-text mt-3">
+                        <i class="bi bi-info-circle"></i>
+                        Solo se muestran empleados con status Activo. Las fechas no pueden traslaparse con otra
+                        inasistencia del mismo empleado. Una vez procesada por la planilla o una liquidación,
+                        la inasistencia ya no se puede modificar ni eliminar.
                     </div>
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
