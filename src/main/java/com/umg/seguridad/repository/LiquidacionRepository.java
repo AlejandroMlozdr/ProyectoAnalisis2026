@@ -10,4 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LiquidacionRepository extends JpaRepository<Liquidacion, Integer> {
+
+    /** Liquidaciones de un empleado (para no liquidar dos veces la misma relacion laboral). */
+    List<Liquidacion> findByEmpleado_IdEmpleado(Integer idEmpleado);
 }
