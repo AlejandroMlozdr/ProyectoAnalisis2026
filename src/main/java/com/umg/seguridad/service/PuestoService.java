@@ -2,6 +2,7 @@ package com.umg.seguridad.service;
 
 import com.umg.seguridad.entity.*;
 import com.umg.seguridad.repository.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ public class PuestoService {
     }
 
     public List<Puesto> listar() {
-        return repository.findAll();
+        return repository.findAll(Sort.by("nombre"));
     }
 
     public Puesto obtenerPorId(Integer id) {
@@ -67,6 +68,12 @@ public class PuestoService {
         }
         if (e.getDepartamento() == null) {
             throw new IllegalArgumentException("Debe seleccionar Departamento.");
+        }
+        boolean duplicado = repository
+                .findByNombreIgnoreCaseAndDepartamento_IdDepartamento(e.getNombre(), e.getDepartamento().getIdDepartamento()).stream()
+                .anyMatch(x -> e.getIdPuesto() == null || !x.getIdPuesto().equals(e.getIdPuesto()));
+        if (duplicado) {
+            throw new IllegalArgumentException("Ya existe un puesto con ese nombre en el departamento seleccionado.");
         }
     }
 }

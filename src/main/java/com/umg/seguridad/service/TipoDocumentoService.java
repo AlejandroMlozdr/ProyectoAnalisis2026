@@ -2,6 +2,7 @@ package com.umg.seguridad.service;
 
 import com.umg.seguridad.entity.*;
 import com.umg.seguridad.repository.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ public class TipoDocumentoService {
     }
 
     public List<TipoDocumento> listar() {
-        return repository.findAll();
+        return repository.findAll(Sort.by("nombre"));
     }
 
     public TipoDocumento obtenerPorId(Integer id) {
@@ -63,6 +64,11 @@ public class TipoDocumentoService {
             if (e.getNombre() != null && e.getNombre().length() > 50) {
                 throw new IllegalArgumentException("El campo Nombre no puede exceder 50 caracteres.");
             }
+        }
+        boolean duplicado = repository.findByNombreIgnoreCase(e.getNombre()).stream()
+                .anyMatch(x -> e.getIdTipoDocumento() == null || !x.getIdTipoDocumento().equals(e.getIdTipoDocumento()));
+        if (duplicado) {
+            throw new IllegalArgumentException("Ya existe un tipo de documento con el nombre \"" + e.getNombre() + "\".");
         }
     }
 }

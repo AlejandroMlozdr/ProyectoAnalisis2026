@@ -10,4 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TipoDocumentoRepository extends JpaRepository<TipoDocumento, Integer> {
+
+    // Usado para evitar nombres repetidos al guardar.
+    List<TipoDocumento> findByNombreIgnoreCase(String nombre);
 }

@@ -10,4 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BancoRepository extends JpaRepository<Banco, Integer> {
+
+    // Usado para evitar nombres repetidos al guardar.
+    List<Banco> findByNombreIgnoreCase(String nombre);
 }

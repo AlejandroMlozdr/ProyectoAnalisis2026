@@ -4,6 +4,8 @@ import com.umg.seguridad.entity.*;
 import com.umg.seguridad.repository.*;
 import com.umg.seguridad.service.DepartamentoService;
 import com.umg.seguridad.util.ReporteUtil;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -63,13 +65,17 @@ public class DepartamentoController {
 
     @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-        service.eliminar(id);
-        redirectAttributes.addFlashAttribute("exito", "Registro eliminado correctamente.");
+        try {
+            service.eliminar(id);
+            redirectAttributes.addFlashAttribute("exito", "Registro eliminado correctamente.");
+        } catch (DataIntegrityViolationException ex) {
+            redirectAttributes.addFlashAttribute("error", "No se puede eliminar el departamento porque tiene puestos asociados.");
+        }
         return "redirect:/departamento";
     }
 
     private void cargarCombos(Model model) {
-        model.addAttribute("empresaOpciones", empresaRepository.findAll());
+        model.addAttribute("empresaOpciones", empresaRepository.findAll(Sort.by("nombre")));
     }
 
     // ----- Imprimir (PDF) y Exportar (Excel) -----
