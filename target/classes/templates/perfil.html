@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Mi Perfil</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-person-circle"></i> Mi Perfil</h3>
+
+        <div class="row g-4">
+            <!-- Datos del usuario (solo lectura) -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white">
+                        <i class="bi bi-person-badge"></i> Mis datos
+                    </div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Usuario</dt>
+                            <dd class="col-sm-7" th:text="${usuario.idUsuario}"></dd>
+
+                            <dt class="col-sm-5">Nombre completo</dt>
+                            <dd class="col-sm-7" th:text="${usuario.nombre} + ' ' + ${usuario.apellido}"></dd>
+
+                            <dt class="col-sm-5">Correo electrónico</dt>
+                            <dd class="col-sm-7" th:text="${usuario.correoElectronico ?: '—'}"></dd>
+
+                            <dt class="col-sm-5">Teléfono móvil</dt>
+                            <dd class="col-sm-7" th:text="${usuario.telefonoMovil ?: '—'}"></dd>
+
+                            <dt class="col-sm-5">Fecha de nacimiento</dt>
+                            <dd class="col-sm-7" th:text="${usuario.fechaNacimiento}"></dd>
+
+                            <dt class="col-sm-5">Sucursal</dt>
+                            <dd class="col-sm-7" th:text="${usuario.sucursal.nombre}"></dd>
+
+                            <dt class="col-sm-5">Empresa</dt>
+                            <dd class="col-sm-7" th:text="${usuario.sucursal.empresa.nombre}"></dd>
+
+                            <dt class="col-sm-5">Rol</dt>
+                            <dd class="col-sm-7">
+                                <span class="badge text-bg-primary" th:text="${usuario.role.nombre}"></span>
+                            </dd>
+
+                            <dt class="col-sm-5">Estatus</dt>
+                            <dd class="col-sm-7">
+                                <span class="badge"
+                                      th:classappend="${usuario.statusUsuario.nombre == 'Activo'} ? 'text-bg-success' : 'text-bg-secondary'"
+                                      th:text="${usuario.statusUsuario.nombre}"></span>
+                            </dd>
+
+                            <dt class="col-sm-5">Último ingreso</dt>
+                            <dd class="col-sm-7" th:text="${usuario.ultimaFechaIngreso ?: 'Sin registro'}"></dd>
+
+                            <dt class="col-sm-5">Último cambio de contraseña</dt>
+                            <dd class="col-sm-7" th:text="${usuario.ultimaFechaCambioPassword ?: 'Sin registro'}"></dd>
+                        </dl>
+                    </div>
+                    <div class="card-footer bg-white text-muted small">
+                        Para modificar estos datos, contactá a un administrador del sistema.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cambiar mi contraseña -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white">
+                        <i class="bi bi-key"></i> Cambiar mi contraseña
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/perfil/cambiar-password}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label">Contraseña actual</label>
+                                <input type="password" name="passwordActual" class="form-control" required />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Contraseña nueva</label>
+                                <input type="password" name="passwordNueva" class="form-control" required />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirmar contraseña nueva</label>
+                                <input type="password" name="passwordConfirmacion" class="form-control" required />
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Actualizar contraseña
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

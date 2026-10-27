@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Empresa</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3">
+            <i class="bi bi-building"></i>
+            <span th:text="${empresa.idEmpresa} != null ? 'Editar Empresa' : 'Nueva Empresa'"></span>
+        </h3>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form th:action="@{/empresa/guardar}" th:object="${empresa}" method="post">
+                    <input type="hidden" th:field="*{idEmpresa}" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" th:field="*{nombre}" class="form-control" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">NIT</label>
+                            <input type="text" th:field="*{nit}" class="form-control" />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" th:field="*{direccion}" class="form-control" />
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <h6 class="text-muted mb-3">Políticas de contraseña de esta empresa</h6>
+
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Mayúsculas mín.</label>
+                            <input type="number" th:field="*{passwordCantidadMayusculas}" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Minúsculas mín.</label>
+                            <input type="number" th:field="*{passwordCantidadMinusculas}" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Números mín.</label>
+                            <input type="number" th:field="*{passwordCantidadNumeros}" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Caract. especiales mín.</label>
+                            <input type="number" th:field="*{passwordCantidadCaracteresEspeciales}" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Longitud mínima</label>
+                            <input type="number" th:field="*{passwordLargo}" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Intentos antes de bloquear</label>
+                            <input type="number" th:field="*{passwordIntentosAntesDeBloquear}" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Días de vigencia</label>
+                            <input type="number" th:field="*{passwordCantidadCaducidadDias}" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Preguntas de recuperación</label>
+                            <input type="number" th:field="*{passwordCantidadPreguntasValidar}" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/empresa}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

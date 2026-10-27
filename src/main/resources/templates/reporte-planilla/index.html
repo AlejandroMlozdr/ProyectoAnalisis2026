@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Reporte de Planilla</title></head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0"><i class="bi bi-file-earmark-bar-graph"></i> Reporte de Planilla</h3>
+            <div class="d-flex gap-2" th:if="${cabecera != null}">
+                <a th:href="@{/reporte-planilla/exportar-pdf(periodo=${periodoSel})}" class="btn btn-outline-danger"
+                   th:if="${@permisoService.puedeImprimir('/reporte-planilla')}"><i class="bi bi-file-earmark-pdf"></i> Imprimir</a>
+                <a th:href="@{/reporte-planilla/exportar-excel(periodo=${periodoSel})}" class="btn btn-outline-success"
+                   th:if="${@permisoService.puedeExportar('/reporte-planilla')}"><i class="bi bi-file-earmark-excel"></i> Exportar</a>
+            </div>
+        </div>
+
+        <form th:action="@{/reporte-planilla}" method="get" class="row g-2 align-items-end mb-4" style="max-width: 650px;">
+            <div class="col">
+                <label class="form-label" for="periodo">Período</label>
+                <select name="periodo" id="periodo" class="form-select" required>
+                    <option value="">-- Seleccione un período procesado --</option>
+                    <option th:each="c : ${periodos}" th:value="${c.id.anio + '-' + c.id.mes}"
+                            th:text="${'Período ' + c.etiqueta}"
+                            th:selected="${periodoSel != null and periodoSel == c.id.anio + '-' + c.id.mes}"></option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Consultar</button>
+            </div>
+        </form>
+
+        <div th:if="${cabecera != null}">
+            <p class="text-muted mb-3">
+                Período <strong th:text="${cabecera.etiqueta}"></strong> &middot;
+                procesada el <span th:text="${#temporals.format(cabecera.fechaHoraProcesada,'dd/MM/yyyy HH:mm')}"></span> &middot;
+                <span th:text="${#lists.size(detalles)}"></span> empleados
+            </p>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card shadow-sm"><div class="card-body">
+                        <div class="text-muted small">Total ingresos</div>
+                        <div class="fs-4 fw-semibold" th:text="${'Q ' + #numbers.formatDecimal(cabecera.totalIngresos,1,'COMMA',2,'POINT')}"></div>
+                    </div></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm"><div class="card-body">
+                        <div class="text-muted small">Total descuentos</div>
+                        <div class="fs-4 fw-semibold" th:text="${'Q ' + #numbers.formatDecimal(cabecera.totalDescuentos,1,'COMMA',2,'POINT')}"></div>
+                    </div></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-success"><div class="card-body">
+                        <div class="text-muted small">Salario neto</div>
+                        <div class="fs-4 fw-semibold text-success" th:text="${'Q ' + #numbers.formatDecimal(cabecera.salarioNeto,1,'COMMA',2,'POINT')}"></div>
+                    </div></div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Empleado</th><th>Contratación</th><th>Puesto</th><th>Status</th>
+                            <th class="text-end">Sueldo base</th><th class="text-end">Bonificación</th><th class="text-end">Otros</th>
+                            <th class="text-end">IGSS</th><th class="text-end">ISR</th><th class="text-end">Inasist.</th>
+                            <th class="text-end">Neto</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="d : ${detalles}">
+                            <td th:text="${d.empleado.persona.nombre + ' ' + d.empleado.persona.apellido}"></td>
+                            <td th:text="${#temporals.format(d.fechaContratacion,'dd/MM/yyyy')}"></td>
+                            <td th:text="${d.puesto.nombre}"></td>
+                            <td th:text="${d.statusEmpleado.nombre}"></td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(d.ingresoSueldoBase,1,'COMMA',2,'POINT')}"></td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(d.ingresoBonificacionDecreto,1,'COMMA',2,'POINT')}"></td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(d.ingresoOtrosIngresos,1,'COMMA',2,'POINT')}"></td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(d.descuentoIgss,1,'COMMA',2,'POINT')}"></td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(d.descuentoIsr,1,'COMMA',2,'POINT')}"></td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(d.descuentoInasistencias,1,'COMMA',2,'POINT')}"></td>
+                            <td class="text-end fw-semibold" th:text="${#numbers.formatDecimal(d.salarioNeto,1,'COMMA',2,'POINT')}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

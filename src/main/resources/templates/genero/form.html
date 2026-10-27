@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Género</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-people"></i> <span th:text="${genero.idGenero} != null ? 'Editar Género' : 'Nuevo Género'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 500px;">
+            <div class="card-body">
+                <form th:action="@{/genero/guardar}" th:object="${genero}" method="post">
+                    <input type="hidden" th:field="*{idGenero}" />
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" th:field="*{nombre}" class="form-control" required />
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/genero}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

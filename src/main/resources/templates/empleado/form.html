@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Empleado</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-person-workspace"></i> <span th:text="${item.idEmpleado} != null ? 'Editar Empleado' : 'Nuevo Empleado'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 900px;">
+            <div class="card-body">
+                <form th:action="@{/empleado/guardar}" th:object="${item}" method="post">
+                    <input type="hidden" th:field="*{idEmpleado}" />
+                    <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="persona">Persona</label>
+                        <select name="persona" id="persona" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="o : ${personaOpciones}" th:value="${o.idPersona}" th:text="${o.nombre + ' ' + o.apellido}"
+                                    th:selected="${item.persona != null and item.persona.idPersona == o.idPersona}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="sucursal">Sucursal</label>
+                        <select name="sucursal" id="sucursal" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="o : ${sucursalOpciones}" th:value="${o.idSucursal}" th:text="${o.nombre}"
+                                    th:selected="${item.sucursal != null and item.sucursal.idSucursal == o.idSucursal}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="fechaContratacion">Fecha de contratación</label>
+                        <input type="date" th:field="*{fechaContratacion}" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="puesto">Puesto</label>
+                        <select name="puesto" id="puesto" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="o : ${puestoOpciones}" th:value="${o.idPuesto}" th:text="${o.nombre}"
+                                    th:selected="${item.puesto != null and item.puesto.idPuesto == o.idPuesto}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="statusEmpleado">Status</label>
+                        <select name="statusEmpleado" id="statusEmpleado" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="o : ${statusEmpleadoOpciones}" th:value="${o.idStatusEmpleado}" th:text="${o.nombre}"
+                                    th:selected="${item.statusEmpleado != null and item.statusEmpleado.idStatusEmpleado == o.idStatusEmpleado}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="ingresoSueldoBase">Sueldo base</label>
+                        <input type="number" step="0.01" min="0" th:field="*{ingresoSueldoBase}" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="ingresoBonificacionDecreto">Bonificación Decreto</label>
+                        <input type="number" step="0.01" min="0" th:field="*{ingresoBonificacionDecreto}" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="ingresoOtrosIngresos">Otros ingresos</label>
+                        <input type="number" step="0.01" min="0" th:field="*{ingresoOtrosIngresos}" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="descuentoIgss">Descuento IGSS</label>
+                        <input type="number" step="0.01" min="0" th:field="*{descuentoIgss}" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="descuentoIsr">Descuento ISR</label>
+                        <input type="number" step="0.01" min="0" th:field="*{descuentoIsr}" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="descuentoInasistencias">Descuento por inasistencias</label>
+                        <input type="number" step="0.01" min="0" th:field="*{descuentoInasistencias}" class="form-control" required />
+                    </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/empleado}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

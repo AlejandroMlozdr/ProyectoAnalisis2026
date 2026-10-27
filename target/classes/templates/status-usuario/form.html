@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Estatus</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-person-check"></i> <span th:text="${status.idStatusUsuario} != null ? 'Editar Estatus' : 'Nuevo Estatus'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 500px;">
+            <div class="card-body">
+                <form th:action="@{/status-usuario/guardar}" th:object="${status}" method="post">
+                    <input type="hidden" th:field="*{idStatusUsuario}" />
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" th:field="*{nombre}" class="form-control" required placeholder="Ej. Activo, Inactivo, Bloqueado" />
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/status-usuario}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Flujo de Status</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-diagram-2"></i> <span th:text="${esNuevo} ? 'Nuevo Flujo de Status' : 'Editar Flujo de Status'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 800px;">
+            <div class="card-body">
+                <form th:action="@{/flujo-status-empleado/guardar}" th:object="${item}" method="post">
+                    <input type="hidden" name="esNuevo" th:value="${esNuevo}" />
+                    <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="statusActual">Status actual</label>
+                        <th:block th:if="${esNuevo}">
+                            <select name="statusActual" id="statusActual" class="form-select" required>
+                                <option value="">-- Seleccione --</option>
+                                <option th:each="o : ${statusActualOpciones}" th:value="${o.idStatusEmpleado}" th:text="${o.nombre}"
+                                        th:selected="${item.statusActual != null and item.statusActual.idStatusEmpleado == o.idStatusEmpleado}"></option>
+                            </select>
+                        </th:block>
+                        <th:block th:unless="${esNuevo}">
+                            <input type="text" class="form-control" th:value="${item.statusActual?.nombre}" readonly />
+                            <input type="hidden" name="statusActual" th:value="${item.statusActual.idStatusEmpleado}" />
+                        </th:block>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="statusNuevo">Status nuevo</label>
+                        <th:block th:if="${esNuevo}">
+                            <select name="statusNuevo" id="statusNuevo" class="form-select" required>
+                                <option value="">-- Seleccione --</option>
+                                <option th:each="o : ${statusNuevoOpciones}" th:value="${o.idStatusEmpleado}" th:text="${o.nombre}"
+                                        th:selected="${item.statusNuevo != null and item.statusNuevo.idStatusEmpleado == o.idStatusEmpleado}"></option>
+                            </select>
+                        </th:block>
+                        <th:block th:unless="${esNuevo}">
+                            <input type="text" class="form-control" th:value="${item.statusNuevo?.nombre}" readonly />
+                            <input type="hidden" name="statusNuevo" th:value="${item.statusNuevo.idStatusEmpleado}" />
+                        </th:block>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="nombreEvento">Nombre del evento</label>
+                        <input type="text" th:field="*{nombreEvento}" class="form-control" maxlength="50" required />
+                    </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/flujo-status-empleado}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

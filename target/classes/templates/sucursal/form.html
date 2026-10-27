@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head><title>Formulario Sucursal</title></head>
+<body>
+    <div layout:fragment="content">
+        <h3 class="mb-3"><i class="bi bi-signpost-split"></i> <span th:text="${sucursal.idSucursal} != null ? 'Editar Sucursal' : 'Nueva Sucursal'"></span></h3>
+        <div class="card shadow-sm" style="max-width: 600px;">
+            <div class="card-body">
+                <form th:action="@{/sucursal/guardar}" th:object="${sucursal}" method="post">
+                    <input type="hidden" th:field="*{idSucursal}" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Empresa</label>
+                        <select th:field="*{empresa}" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option th:each="e : ${empresas}" th:value="${e.idEmpresa}" th:text="${e.nombre}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" th:field="*{nombre}" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Dirección</label>
+                        <input type="text" th:field="*{direccion}" class="form-control" />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a th:href="@{/sucursal}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

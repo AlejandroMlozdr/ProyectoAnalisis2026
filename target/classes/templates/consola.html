@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Consola</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h2 class="mb-1">Bienvenido, <span sec:authentication="name"></span></h2>
+        <p class="text-muted">Consola principal del Sistema de Seguridad</p>
+        <hr>
+
+        <!--
+          Tarjetas dinamicas: una por cada Opcion que el rol del usuario
+          autenticado tiene asignada (mismo dato que arma el sidebar), agrupadas
+          por Modulo. Si el rol no tiene ningun permiso asignado, se muestra un
+          aviso en vez de una consola vacia sin explicacion.
+        -->
+        <div th:each="modulo : ${menuLateral}" class="mt-4">
+            <h6 class="text-uppercase text-muted small" th:text="${modulo.nombre}"></h6>
+            <div class="row g-3">
+                <th:block th:each="menu : ${modulo.menus}">
+                    <div class="col-md-4 col-lg-3" th:each="opcion : ${menu.opciones}">
+                        <a th:href="@{${opcion.pagina}}" class="card text-decoration-none h-100 shadow-sm">
+                            <div class="card-body text-center">
+                                <i th:class="'bi ' + ${opcion.icono} + ' fs-1 text-primary'"></i>
+                                <h6 class="card-title mt-2 mb-0" th:text="${opcion.nombre}"></h6>
+                            </div>
+                        </a>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4" th:if="${#lists.isEmpty(menuLateral)}">
+            Tu rol todavía no tiene opciones asignadas. Pide a un administrador que
+            te asigne permisos desde "Asignar Opciones a un Rol".
+        </div>
+    </div>
+</body>
+</html>
